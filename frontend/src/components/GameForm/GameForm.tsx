@@ -132,15 +132,26 @@ const GameForm: React.FC<Props> = ({ initialData, onSubmit, onCancel }) => {
   };
 
   return (
-    <div className="game-form__overlay" onClick={(e) => e.target === e.currentTarget && onCancel()}>
+    <div
+      className="game-form__overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="game-form-title"
+      onClick={(e) => e.target === e.currentTarget && onCancel()}
+    >
       <form className="game-form" onSubmit={handleSubmit} noValidate>
 
         {/* Header */}
         <div className="game-form__header">
-          <h2 className="game-form__title">
+          <h2 id="game-form-title" className="game-form__title">
             {isEdit ? 'Edit Game' : 'Add New Game'}
           </h2>
-          <button type="button" className="game-form__close" onClick={onCancel}>
+          <button
+            type="button"
+            className="game-form__close"
+            onClick={onCancel}
+            aria-label="Formular schliessen"
+          >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
             </svg>
