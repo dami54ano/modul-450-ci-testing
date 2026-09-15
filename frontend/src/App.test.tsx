@@ -1,9 +1,16 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 import App from './App';
 
-test('renders learn react link', () => {
+jest.mock('./hooks/useGames', () => ({
+  useGames: () => ({ games: [], loading: false, error: null,
+    fetchGames: jest.fn(), search: jest.fn(), addGame: jest.fn(),
+    editGame: jest.fn(), removeGame: jest.fn() }),
+}));
+jest.mock('./api/steamApi', () => ({
+  searchSteamGames: jest.fn(), getSteamGameDetails: jest.fn(),
+}));
+
+test('renders the games library heading', () => {
   render(<App />);
-  const linkElement = screen.getByText(/learn react/i);
-  expect(linkElement).toBeInTheDocument();
+  expect(screen.getByRole('heading', { name: 'Games Library', level: 1 })).toBeInTheDocument();
 });

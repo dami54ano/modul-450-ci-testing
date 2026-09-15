@@ -1,0 +1,94 @@
+name: Frontend Build and Jest
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: Test mode for performance comparison
+        type: choice
+        default: sharding
+        options: [sharding, normal, workers]
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    working-directory: frontend
+
+env:
+  CI: 'true'
+  CYPRESS_INSTALL_BINARY: '0'
+
+jobs:
+  build:
+    name: Build frontend
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Setup Node and npm cache
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: frontend/.nvmrc
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Install dependencies
+        run: npm ci
+      - name: Build production app
+        run: npm run build
+      - name: Upload production build
+        uses: actions/upload-artifact@v7
+        with:
+          name: frontend-build
+          path: |
+            frontend/build/
+            !frontend/build/**/*.map
+          if-no-files-found: error
+          retention-days: 3
+
+  tests:
+    name: Jest - ${{ inputs.mode || 'sharding' }} - shard ${{ matrix.shard }}
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: ${{ fromJSON((inputs.mode == 'normal' || inputs.mode == 'workers') && '[1]' || '[1,2]') }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Setup Node and npm cache
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: frontend/.nvmrc
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Install dependencies
+        run: npm ci
+      - name: Download production build
+        uses: actions/download-artifact@v8
+        with:
+          name: frontend-build
+          path: frontend/build
+      - name: Verify downloaded build
+        run: npm run test:build
+      - name: Run Jest shard
+        if: inputs.mode != 'normal' && inputs.mode != 'workers'
+        run: npm run test:shard -- ${{ matrix.shard }}/2
+      - name: Run normal Jest baseline
+        if: inputs.mode == 'normal'
+        run: npm run test:ci
+      - name: Run Jest with multiple workers
+        if: inputs.mode == 'workers'
+        run: npm run test:workers
