@@ -69,3 +69,15 @@ npm run e2e
 - JUnit 5 und Mockito
 - React und TypeScript
 - Cypress
+
+## Frontend-CI (Modul 450)
+
+Das neue private Abgabe-Repository ist https://github.com/dami54ano/modul-450-ci-testing.
+Die GitHub-Actions-Pipeline baut das Frontend und führt Jest in zwei parallelen Shards aus.
+Über Run workflow lassen sich auch die Modi normal und workers starten.
+
+Messwerte, Reflexion, Fehler-Versuch und direkte Links zu den echten GitHub-Läufen:
+[CI-Testing-Dokumentation](docs/ci-testing.md).
+
+Lokal im frontend-Ordner: `npm test`. Push in das neue Repository:
+`git push ci-assignment HEAD:main`.
