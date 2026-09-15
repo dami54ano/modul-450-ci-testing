@@ -12,5 +12,5 @@ jest.mock('./api/steamApi', () => ({
 
 test('renders the games library heading', () => {
   render(<App />);
-  expect(screen.getByRole('heading', { name: 'Wrong Heading', level: 1 })).toBeInTheDocument();
+  expect(screen.getByRole('heading', { name: 'Games Library', level: 1 })).toBeInTheDocument();
 });
